@@ -36,6 +36,7 @@ var defaults = {
 
     'infobox.enabled': true,
     'infobox.position': '0'
+    ,'copy.stripThousands': false
 };
 
 var captureModes = [

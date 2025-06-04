@@ -86,6 +86,7 @@ M.select = function (el, mode) {
     if (el && M.start(el)) {
         var tds = cellsToSelect(el, mode);
         tds.forEach(cell.select);
+        infobox.update(M.table());
     }
 };
 
@@ -96,5 +97,6 @@ M.toggle = function (el, mode) {
         var tds = cellsToSelect(el, mode),
             fn = tds.every(cell.selected) ? cell.reset : cell.select;
         tds.forEach(fn);
+        infobox.update(M.table());
     }
 };
