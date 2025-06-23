@@ -8,11 +8,13 @@ body[data-copytables-wait] *
     cursor: wait  $i
 
 [data-copytables-selected]:not([data-copytables-locked])
-    background: Highlight $i
+    background: adjust-color(Highlight, $alpha: -0.3) $i // 更深的背景颜色
+    outline: 1px solid Highlight $i // 添加边框
     transition: $no-trans
 
 [data-copytables-marked]:not([data-copytables-locked])
-    background: Highlight $i
+    background: adjust-color(Highlight, $alpha: -0.3) $i // 更深的背景颜色
+    outline: 1px solid Highlight $i // 添加边框
     transition: $no-trans
 
 $infobox-border: 9px
@@ -78,3 +80,13 @@ $infobox-color: $accent
         padding: 12px
         cursor: pointer
 
+    .copyable-stat
+        cursor: pointer
+        &:hover
+            background-color: transparentize(darken($infobox-color, 10), 0.03)
+        &.copied
+            background-color: transparentize(green, 0.3) !important
+            transition: background-color 0.2s ease-in-out
+        &.copy-failed
+            background-color: transparentize(red, 0.3) !important
+            transition: background-color 0.2s ease-in-out

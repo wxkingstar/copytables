@@ -72,8 +72,10 @@ function html(items, sticky) {
     var h = [];
 
     items.forEach(function (item) {
-        if (item.message !== null)
-            h.push(' <b>' + item.title + '<i>' + item.message + '</i></b>');
+        if (item.message !== null) {
+            // Add a span with a class for styling and an event listener for copying
+            h.push(' <b class="copyable-stat" title="Click to copy">' + item.title + '<i class="value">' + item.message + '</i></b>');
+        }
     });
 
     h = h.join('');
@@ -95,8 +97,29 @@ function init() {
     document.body.appendChild(box);
 
     box.addEventListener('click', function (e) {
-        if (dom.tag(e.target) === 'SPAN')
+        if (dom.tag(e.target) === 'SPAN' && e.target.textContent === '×') { // Close button
             hide();
+        } else if (e.target.closest('.copyable-stat')) {
+            var statElement = e.target.closest('.copyable-stat');
+            var valueElement = statElement.querySelector('.value');
+            if (valueElement) {
+                var valueText = valueElement.textContent;
+                navigator.clipboard.writeText(valueText).then(function () {
+                    // Briefly indicate success
+                    statElement.classList.add('copied');
+                    setTimeout(function () {
+                        statElement.classList.remove('copied');
+                    }, 1000);
+                }).catch(function (err) {
+                    console.error('Failed to copy text: ', err);
+                    // Optionally, indicate failure to the user
+                    statElement.classList.add('copy-failed');
+                    setTimeout(function () {
+                        statElement.classList.remove('copy-failed');
+                    }, 1000);
+                });
+            }
+        }
     });
 
     return box;
