@@ -94,13 +94,24 @@ pugFiles.forEach(file => {
 // Step 3: Create CSS
 console.log('\n🎨 Creating CSS files...');
 
-// Create content.css with our enhanced styles
-const contentCSS = `/* CopyTables Content Styles */
+// Create content.css with enhanced modern styles
+const contentCSS = `/* CopyTables Content Styles - Enhanced UI */
 
 @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 body[data-copytables-wait],
@@ -120,17 +131,21 @@ body[data-copytables-wait] * {
 
 #__copytables_infobox__ {
     position: fixed;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
     overflow: hidden;
     white-space: nowrap;
     z-index: 65535;
-    background-color: rgba(44, 50, 66, 0.97);
+    background: linear-gradient(135deg, rgba(44, 62, 80, 0.96), rgba(52, 73, 94, 0.96));
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     background-image: url(ico16.png);
-    background-position: 8px center;
+    background-position: 10px center;
     background-repeat: no-repeat;
-    padding: 0 0 0 32px;
-    transition: opacity 0.2s ease;
+    padding: 0 0 0 36px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideIn 0.3s ease-out;
 }
 
 #__copytables_infobox__.hidden {
@@ -164,50 +179,88 @@ body[data-copytables-wait] * {
 #__copytables_infobox__ b {
     display: inline-block;
     margin: 0 1px;
-    padding: 12px 12px 12px 0;
-    font-weight: 200;
-    color: #9eb3c8;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    padding: 10px 14px;
+    font-weight: 300;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.3px;
 }
 
 #__copytables_infobox__ b:first-child {
     border-left: none;
+    padding-left: 4px;
 }
 
 #__copytables_infobox__ b.stat-item {
     cursor: pointer;
-    padding: 12px;
-    margin: 0 2px;
-    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 0 3px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+#__copytables_infobox__ b.stat-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
 }
 
 #__copytables_infobox__ b.stat-item:hover {
-    background-color: rgba(60, 70, 90, 0.5);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+#__copytables_infobox__ b.stat-item:hover::before {
+    left: 100%;
 }
 
 #__copytables_infobox__ b.stat-item:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 #__copytables_infobox__ b.stat-item.copied {
-    background-color: rgba(80, 95, 120, 0.7);
-    animation: pulse 0.3s ease;
+    background: linear-gradient(135deg, rgba(46, 213, 115, 0.25), rgba(0, 184, 148, 0.25));
+    border-color: rgba(46, 213, 115, 0.5);
+    animation: pulse 0.4s ease;
+    color: rgba(255, 255, 255, 1);
+    box-shadow: 0 0 20px rgba(46, 213, 115, 0.3);
 }
 
 #__copytables_infobox__ b i {
     font-style: normal;
     padding-left: 6px;
-    font-weight: 700;
-    color: #c5d5e5;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
     pointer-events: none;
+    font-size: 13px;
 }
 
 #__copytables_infobox__ span {
-    background-color: rgba(39, 45, 61, 0.97);
-    color: #c5d5e5;
-    padding: 12px;
+    background: rgba(231, 76, 60, 0.15);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 10px 14px;
     cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#__copytables_infobox__ span:hover {
+    background: rgba(231, 76, 60, 0.3);
+    color: rgba(255, 255, 255, 1);
 }
 `;
 

@@ -91,11 +91,15 @@ function html(items, sticky) {
 }
 
 function copyToClipboard(text) {
+    console.log('[CopyTables] Attempting to copy:', text);
+
     // Try modern Clipboard API first
     if (navigator.clipboard && navigator.clipboard.writeText) {
         return navigator.clipboard.writeText(text).then(function() {
+            console.log('[CopyTables] ✓ Copy successful (Clipboard API)');
             return true;
-        }).catch(function() {
+        }).catch(function(err) {
+            console.log('[CopyTables] Clipboard API failed, using fallback:', err);
             return fallbackCopy(text);
         });
     }
@@ -104,6 +108,8 @@ function copyToClipboard(text) {
 
 function fallbackCopy(text) {
     // Fallback method using execCommand
+    console.log('[CopyTables] Using fallback copy method (execCommand)');
+
     var textarea = document.createElement('textarea');
     textarea.value = text;
     textarea.style.position = 'fixed';
@@ -114,8 +120,16 @@ function fallbackCopy(text) {
     try {
         var successful = document.execCommand('copy');
         document.body.removeChild(textarea);
+
+        if (successful) {
+            console.log('[CopyTables] ✓ Copy successful (execCommand)');
+        } else {
+            console.log('[CopyTables] ✗ Copy failed (execCommand)');
+        }
+
         return successful ? Promise.resolve(true) : Promise.resolve(false);
     } catch (err) {
+        console.log('[CopyTables] ✗ Copy error:', err);
         document.body.removeChild(textarea);
         return Promise.resolve(false);
     }
@@ -156,13 +170,24 @@ function init() {
 
         // Check if it's a stat item
         if (dom.tag(statItem) === 'B' && statItem.classList.contains('stat-item')) {
+            console.log('[CopyTables] Stat item clicked:', statItem);
+
             var value = statItem.getAttribute('data-value');
+            var statName = statItem.getAttribute('data-stat-name');
+
+            console.log('[CopyTables] Stat name:', statName, 'Value:', value);
+
             if (value) {
                 copyToClipboard(value).then(function(success) {
                     if (success) {
+                        console.log('[CopyTables] Showing feedback animation');
                         showCopyFeedback(statItem);
+                    } else {
+                        console.log('[CopyTables] Copy failed, no feedback shown');
                     }
                 });
+            } else {
+                console.log('[CopyTables] No value found to copy');
             }
         }
     });
