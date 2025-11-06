@@ -72,8 +72,11 @@ function html(items, sticky) {
     var h = [];
 
     items.forEach(function (item) {
-        if (item.message !== null)
-            h.push(' <b>' + item.title + '<i>' + item.message + '</i></b>');
+        if (item.message !== null) {
+            // Make each stat item clickable with data attributes
+            h.push(' <b class="stat-item" data-value="' + item.message + '" data-stat-name="' + item.title.replace(':', '') + '" title="Click to copy">' +
+                   item.title + '<i>' + item.message + '</i></b>');
+        }
     });
 
     h = h.join('');
@@ -87,6 +90,48 @@ function html(items, sticky) {
     return h;
 }
 
+function copyToClipboard(text) {
+    // Try modern Clipboard API first
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text).then(function() {
+            return true;
+        }).catch(function() {
+            return fallbackCopy(text);
+        });
+    }
+    return fallbackCopy(text);
+}
+
+function fallbackCopy(text) {
+    // Fallback method using execCommand
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    try {
+        var successful = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        return successful ? Promise.resolve(true) : Promise.resolve(false);
+    } catch (err) {
+        document.body.removeChild(textarea);
+        return Promise.resolve(false);
+    }
+}
+
+function showCopyFeedback(element) {
+    var originalTitle = element.getAttribute('title');
+    element.setAttribute('title', 'Copied!');
+    element.classList.add('copied');
+
+    setTimeout(function() {
+        element.setAttribute('title', originalTitle);
+        element.classList.remove('copied');
+    }, 1000);
+}
+
 function init() {
     var box = dom.create('div', {
         id: boxId,
@@ -95,8 +140,31 @@ function init() {
     document.body.appendChild(box);
 
     box.addEventListener('click', function (e) {
-        if (dom.tag(e.target) === 'SPAN')
+        var target = e.target;
+
+        // Close button clicked
+        if (dom.tag(target) === 'SPAN') {
             hide();
+            return;
+        }
+
+        // Find the stat item (could be clicking on <b> or <i> inside it)
+        var statItem = target;
+        if (dom.tag(target) === 'I') {
+            statItem = target.parentElement;
+        }
+
+        // Check if it's a stat item
+        if (dom.tag(statItem) === 'B' && statItem.classList.contains('stat-item')) {
+            var value = statItem.getAttribute('data-value');
+            if (value) {
+                copyToClipboard(value).then(function(success) {
+                    if (success) {
+                        showCopyFeedback(statItem);
+                    }
+                });
+            }
+        }
     });
 
     return box;
