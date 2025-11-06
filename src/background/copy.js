@@ -4,6 +4,8 @@ var paste = require('./paste'),
     dom = require('../lib/dom'),
     matrix = require('../lib/matrix'),
     util = require('../lib/util'),
+    preferences = require('../lib/preferences'),
+    number = require('../lib/number'),
     clipboard = require('./clipboard')
 ;
 
@@ -14,15 +16,29 @@ function trimTextMatrix(mat) {
     return matrix.trim(mat, Boolean);
 }
 
+function maybeStripGroups(text) {
+    if (!preferences.val('copy.stripThousands'))
+        return text;
+    var fmt = preferences.numberFormat();
+    if (fmt.group) {
+        var re = new RegExp('\\' + fmt.group, 'g');
+        // Ensure it's a number before stripping
+        if (number.parse(text, fmt) !== null)
+            return text.replace(re, '');
+    }
+    return text;
+}
+
 function asTabs(mat) {
     return trimTextMatrix(mat).map(function (row) {
-        return row.join('\t')
+        return row.map(maybeStripGroups).join('\t')
     }).join('\n');
 }
 
 function asCSV(mat) {
     return trimTextMatrix(mat).map(function (row) {
         return row.map(function (cell) {
+            cell = maybeStripGroups(cell);
             if (cell.match(/^\w+$/) || cell.match(/^-?[0-9]+(\.[0-9]*)?$/))
                 return cell;
             return '"' + cell.replace(/"/g, '""') + '"';
