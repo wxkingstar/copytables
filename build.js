@@ -105,6 +105,9 @@ body[data-copytables-wait] * {
     overflow: hidden;
     white-space: nowrap;
     z-index: 65535;
+    /* 使用 flexbox 垂直居中所有子元素 */
+    display: flex;
+    align-items: center;
     /* 深灰色背景，白色文字 - 高对比度设计 */
     background: linear-gradient(135deg, rgba(35, 40, 45, 0.97), rgba(45, 52, 58, 0.97));
     backdrop-filter: blur(12px) saturate(140%);
