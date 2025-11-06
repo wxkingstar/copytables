@@ -174,10 +174,16 @@ function showCopyFeedback(element) {
 
 // Click handler function (extracted for reuse)
 function handleBoxClick(e) {
-    var target = e.target;
+    // CRITICAL: Stop event propagation to prevent global mousedownCapture handler
+    // from triggering dropAllSelections
+    e.stopPropagation();
+    e.preventDefault();
 
     console.log('[CopyTables] ===================================');
     console.log('[CopyTables] CLICK EVENT TRIGGERED!');
+    console.log('[CopyTables] Event propagation stopped');
+
+    var target = e.target;
     console.log('[CopyTables] Click detected on:', target.tagName, target.className);
     console.log('[CopyTables] Target element:', target);
     console.log('[CopyTables] Target outerHTML:', target.outerHTML);
@@ -257,12 +263,16 @@ function init() {
 
     console.log('[CopyTables] Box element created and appended');
     console.log('[CopyTables] Box ID:', box.id);
-    console.log('[CopyTables] Adding click event listener...');
+    console.log('[CopyTables] Adding event listeners...');
 
-    // Add click event listener
+    // Add mousedown listener in capture phase to prevent global handler
+    // This will intercept the event BEFORE it reaches the global mousedownCapture
+    box.addEventListener('mousedown', handleBoxClick, true);
+
+    // Also add click listener as backup
     box.addEventListener('click', handleBoxClick);
 
-    console.log('[CopyTables] Click event listener added successfully');
+    console.log('[CopyTables] Event listeners added successfully (mousedown capture + click)');
     console.log('[CopyTables] ========================================');
 
     return box;
@@ -299,11 +309,16 @@ function draw() {
     box.innerHTML = pendingContent;
     console.log('[CopyTables] innerHTML updated');
 
-    // CRITICAL FIX: Re-attach event listener after innerHTML update
-    // Remove old listener first to avoid duplicates
+    // CRITICAL FIX: Re-attach event listeners after innerHTML update
+    // Remove old listeners first to avoid duplicates
+    box.removeEventListener('mousedown', handleBoxClick, true);
     box.removeEventListener('click', handleBoxClick);
-    box.addEventListener('click', handleBoxClick);
-    console.log('[CopyTables] *** Event listener RE-ATTACHED after innerHTML update ***');
+
+    // Re-add both listeners
+    box.addEventListener('mousedown', handleBoxClick, true);  // Capture phase
+    box.addEventListener('click', handleBoxClick);            // Bubble phase
+
+    console.log('[CopyTables] *** Event listeners RE-ATTACHED (mousedown capture + click) ***');
 
     // Verify the stat items were created
     var statItems = box.querySelectorAll('.stat-item');
