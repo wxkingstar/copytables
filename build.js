@@ -39,54 +39,23 @@ staticPatterns.forEach(pattern => {
     }
 });
 
-// Step 2: Process PUG files
-console.log('\n📝 Processing HTML templates...');
-const pugFiles = ['popup.pug', 'options.pug'];
+// Step 2: Compile PUG files using npx pug-cli
+console.log('\n📝 Compiling PUG templates...');
+
+const pugFiles = ['options.pug', 'popup.pug'];
 
 pugFiles.forEach(file => {
-    const pugPath = path.join(SRC, file);
-    const htmlFile = file.replace('.pug', '.html');
-    const destPath = path.join(DEST, htmlFile);
-
-    if (fs.existsSync(pugPath)) {
+    const srcPath = path.join(SRC, file);
+    if (fs.existsSync(srcPath)) {
         try {
-            // Simple pug template processor
-            const content = fs.readFileSync(pugPath, 'utf8');
-
-            // Basic pug to HTML conversion (very simplified)
-            let html = '<!DOCTYPE html>\n';
-
-            if (file === 'popup.pug') {
-                html = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="popup.css">
-</head>
-<body>
-    <div id="app"></div>
-    <script src="popup.js"></script>
-</body>
-</html>`;
-            } else if (file === 'options.pug') {
-                html = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="options.css">
-    <title>CopyTables Options</title>
-</head>
-<body>
-    <div id="app"></div>
-    <script src="options.js"></script>
-</body>
-</html>`;
-            }
-
-            fs.writeFileSync(destPath, html);
-            console.log(`  ✓ ${file} → ${htmlFile}`);
+            // Use npx to compile pug without installing globally
+            execSync(`npx -y -p pug-cli pug ${srcPath} --out ${DEST}`, {
+                stdio: 'pipe'
+            });
+            console.log(`  ✓ ${file} → ${file.replace('.pug', '.html')}`);
         } catch (err) {
-            console.log(`  ⚠ ${file} failed:`, err.message);
+            console.log(`  ⚠ ${file} compilation failed`);
+            console.log(`  💡 Please ensure you have internet connection for npx`);
         }
     }
 });
