@@ -105,10 +105,14 @@ body[data-copytables-wait] * {
     overflow: hidden;
     white-space: nowrap;
     z-index: 65535;
-    background: linear-gradient(135deg, rgba(44, 62, 80, 0.96), rgba(52, 73, 94, 0.96));
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* 深色背景，提高不透明度确保在白色背景上可见 */
+    background: linear-gradient(135deg, rgba(30, 39, 46, 0.98), rgba(44, 62, 80, 0.98));
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    /* 增强阴影效果，在白色背景上更明显 */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 0.5px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    /* 更明显的边框 */
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
     background-image: url(ico16.png);
     background-position: 10px center;
     background-repeat: no-repeat;
@@ -166,8 +170,10 @@ body[data-copytables-wait] * {
     padding: 8px 12px;
     margin: 0 3px;
     border-radius: 6px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* 增强卡片背景，确保可见性 */
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: hidden;
 }
@@ -184,11 +190,11 @@ body[data-copytables-wait] * {
 }
 
 #__copytables_infobox__ b.stat-item:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.35);
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 1);
 }
 
 #__copytables_infobox__ b.stat-item:hover::before {
@@ -201,11 +207,11 @@ body[data-copytables-wait] * {
 }
 
 #__copytables_infobox__ b.stat-item.copied {
-    background: linear-gradient(135deg, rgba(46, 213, 115, 0.25), rgba(0, 184, 148, 0.25));
-    border-color: rgba(46, 213, 115, 0.5);
+    background: linear-gradient(135deg, rgba(46, 213, 115, 0.35), rgba(0, 184, 148, 0.35));
+    border-color: rgba(46, 213, 115, 0.6);
     animation: pulse 0.4s ease;
     color: rgba(255, 255, 255, 1);
-    box-shadow: 0 0 20px rgba(46, 213, 115, 0.3);
+    box-shadow: 0 0 24px rgba(46, 213, 115, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 #__copytables_infobox__ b i {
