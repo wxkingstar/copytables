@@ -172,8 +172,82 @@ function showCopyFeedback(element) {
     }, 1000);
 }
 
+// Click handler function (extracted for reuse)
+function handleBoxClick(e) {
+    var target = e.target;
+
+    console.log('[CopyTables] ===================================');
+    console.log('[CopyTables] CLICK EVENT TRIGGERED!');
+    console.log('[CopyTables] Click detected on:', target.tagName, target.className);
+    console.log('[CopyTables] Target element:', target);
+    console.log('[CopyTables] Target outerHTML:', target.outerHTML);
+
+    // Close button clicked
+    if (dom.tag(target) === 'SPAN') {
+        console.log('[CopyTables] Close button clicked');
+        hide();
+        return;
+    }
+
+    // Find the stat item (could be clicking on <b> or <i> inside it)
+    var statItem = target;
+    if (dom.tag(target) === 'I') {
+        statItem = target.parentElement;
+        console.log('[CopyTables] Clicked on <i>, getting parent <b>');
+    }
+
+    console.log('[CopyTables] Checking statItem:', statItem);
+    console.log('[CopyTables] statItem tag:', dom.tag(statItem));
+    console.log('[CopyTables] statItem has stat-item class?', statItem.classList ? statItem.classList.contains('stat-item') : 'no classList');
+
+    // Check if it's a stat item
+    if (dom.tag(statItem) === 'B' && statItem.classList && statItem.classList.contains('stat-item')) {
+        console.log('[CopyTables] *** STAT ITEM CLICKED ***');
+
+        // Visual feedback immediately to confirm click works
+        statItem.style.backgroundColor = 'yellow';
+        setTimeout(function() {
+            statItem.style.backgroundColor = '';
+        }, 200);
+
+        var value = statItem.getAttribute('data-value');
+        var statName = statItem.getAttribute('data-stat-name');
+
+        console.log('[CopyTables] Stat name:', statName);
+        console.log('[CopyTables] Value:', value);
+        console.log('[CopyTables] Value type:', typeof value);
+
+        if (value) {
+            console.log('[CopyTables] Calling copyToClipboard with:', value);
+            copyToClipboard(value).then(function(success) {
+                console.log('[CopyTables] Copy promise resolved, success:', success);
+                if (success) {
+                    console.log('[CopyTables] Showing feedback animation');
+                    showCopyFeedback(statItem);
+                } else {
+                    console.log('[CopyTables] ✗ Copy failed, no feedback shown');
+                    // Show error feedback
+                    statItem.style.backgroundColor = 'red';
+                    setTimeout(function() {
+                        statItem.style.backgroundColor = '';
+                    }, 500);
+                }
+            });
+        } else {
+            console.log('[CopyTables] ✗ No value found to copy');
+        }
+    } else {
+        console.log('[CopyTables] Not a stat item.');
+        console.log('[CopyTables] - Tag:', dom.tag(statItem));
+        console.log('[CopyTables] - Classes:', statItem.className);
+        console.log('[CopyTables] - classList:', statItem.classList);
+    }
+}
+
 function init() {
-    console.log('[CopyTables] Initializing infobox v2.0 with click-to-copy');
+    console.log('[CopyTables] ========================================');
+    console.log('[CopyTables] INITIALIZING INFOBOX v2.0');
+    console.log('[CopyTables] ========================================');
 
     var box = dom.create('div', {
         id: boxId,
@@ -181,101 +255,60 @@ function init() {
     });
     document.body.appendChild(box);
 
-    box.addEventListener('click', function (e) {
-        var target = e.target;
+    console.log('[CopyTables] Box element created and appended');
+    console.log('[CopyTables] Box ID:', box.id);
+    console.log('[CopyTables] Adding click event listener...');
 
-        console.log('[CopyTables] ===================================');
-        console.log('[CopyTables] CLICK EVENT TRIGGERED!');
-        console.log('[CopyTables] Click detected on:', target.tagName, target.className);
-        console.log('[CopyTables] Target element:', target);
-        console.log('[CopyTables] Target outerHTML:', target.outerHTML);
+    // Add click event listener
+    box.addEventListener('click', handleBoxClick);
 
-        // Close button clicked
-        if (dom.tag(target) === 'SPAN') {
-            console.log('[CopyTables] Close button clicked');
-            hide();
-            return;
-        }
-
-        // Find the stat item (could be clicking on <b> or <i> inside it)
-        var statItem = target;
-        if (dom.tag(target) === 'I') {
-            statItem = target.parentElement;
-            console.log('[CopyTables] Clicked on <i>, getting parent <b>');
-        }
-
-        console.log('[CopyTables] Checking statItem:', statItem);
-        console.log('[CopyTables] statItem tag:', dom.tag(statItem));
-        console.log('[CopyTables] statItem has stat-item class?', statItem.classList.contains('stat-item'));
-
-        // Check if it's a stat item
-        if (dom.tag(statItem) === 'B' && statItem.classList.contains('stat-item')) {
-            console.log('[CopyTables] *** STAT ITEM CLICKED ***');
-
-            // Visual feedback immediately to confirm click works
-            statItem.style.backgroundColor = 'yellow';
-            setTimeout(function() {
-                statItem.style.backgroundColor = '';
-            }, 200);
-
-            var value = statItem.getAttribute('data-value');
-            var statName = statItem.getAttribute('data-stat-name');
-
-            console.log('[CopyTables] Stat name:', statName);
-            console.log('[CopyTables] Value:', value);
-            console.log('[CopyTables] Value type:', typeof value);
-
-            if (value) {
-                console.log('[CopyTables] Calling copyToClipboard with:', value);
-                copyToClipboard(value).then(function(success) {
-                    console.log('[CopyTables] Copy promise resolved, success:', success);
-                    if (success) {
-                        console.log('[CopyTables] Showing feedback animation');
-                        showCopyFeedback(statItem);
-                    } else {
-                        console.log('[CopyTables] ✗ Copy failed, no feedback shown');
-                        // Show error feedback
-                        statItem.style.backgroundColor = 'red';
-                        setTimeout(function() {
-                            statItem.style.backgroundColor = '';
-                        }, 500);
-                    }
-                });
-            } else {
-                console.log('[CopyTables] ✗ No value found to copy');
-            }
-        } else {
-            console.log('[CopyTables] Not a stat item.');
-            console.log('[CopyTables] - Tag:', dom.tag(statItem));
-            console.log('[CopyTables] - Classes:', statItem.className);
-            console.log('[CopyTables] - classList:', statItem.classList);
-        }
-    });
+    console.log('[CopyTables] Click event listener added successfully');
+    console.log('[CopyTables] ========================================');
 
     return box;
 }
 
 function draw() {
+    console.log('[CopyTables] draw() called, pendingContent:', pendingContent ? 'exists' : 'null');
+
     if (!pendingContent) {
-        //console.log('no pendingContent');
         clearTimer();
         return;
     }
 
     if (pendingContent === 'hide') {
-        //console.log('removed');
+        console.log('[CopyTables] Hiding infobox');
         dom.remove([getBox()]);
         clearTimer();
         return;
     }
 
-    var box = getBox() || init();
+    var box = getBox();
+    var isNewBox = !box;
+
+    if (!box) {
+        console.log('[CopyTables] Box does not exist, calling init()');
+        box = init();
+    } else {
+        console.log('[CopyTables] Box already exists, reusing it');
+    }
 
     dom.removeClass(box, 'hidden');
+
+    console.log('[CopyTables] Setting innerHTML to:', pendingContent.substring(0, 100) + '...');
     box.innerHTML = pendingContent;
+    console.log('[CopyTables] innerHTML updated');
+
+    // Verify the stat items were created
+    var statItems = box.querySelectorAll('.stat-item');
+    console.log('[CopyTables] Found', statItems.length, 'stat items after innerHTML update');
+
+    if (statItems.length > 0) {
+        console.log('[CopyTables] First stat item:', statItems[0].outerHTML);
+    }
 
     pendingContent = null;
-    //console.log('drawn');
+    console.log('[CopyTables] draw() completed');
 }
 
 function show(items) {
