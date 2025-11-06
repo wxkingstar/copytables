@@ -299,6 +299,12 @@ function draw() {
     box.innerHTML = pendingContent;
     console.log('[CopyTables] innerHTML updated');
 
+    // CRITICAL FIX: Re-attach event listener after innerHTML update
+    // Remove old listener first to avoid duplicates
+    box.removeEventListener('click', handleBoxClick);
+    box.addEventListener('click', handleBoxClick);
+    console.log('[CopyTables] *** Event listener RE-ATTACHED after innerHTML update ***');
+
     // Verify the stat items were created
     var statItems = box.querySelectorAll('.stat-item');
     console.log('[CopyTables] Found', statItems.length, 'stat items after innerHTML update');
@@ -306,6 +312,15 @@ function draw() {
     if (statItems.length > 0) {
         console.log('[CopyTables] First stat item:', statItems[0].outerHTML);
     }
+
+    // Test: Check box clickability
+    console.log('[CopyTables] Box clickability test:');
+    console.log('[CopyTables] - Box element:', box);
+    console.log('[CopyTables] - Box ID:', box.id);
+    console.log('[CopyTables] - Box style.pointerEvents:', window.getComputedStyle(box).pointerEvents);
+    console.log('[CopyTables] - Box dimensions:', box.offsetWidth, 'x', box.offsetHeight);
+    console.log('[CopyTables] - Box visibility:', window.getComputedStyle(box).visibility);
+    console.log('[CopyTables] - Box display:', window.getComputedStyle(box).display);
 
     pendingContent = null;
     console.log('[CopyTables] draw() completed');
