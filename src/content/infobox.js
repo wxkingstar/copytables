@@ -99,28 +99,38 @@ function copyToClipboard(text) {
     console.log('[CopyTables] Text type:', typeof text);
     console.log('[CopyTables] Text length:', text ? text.length : 0);
 
-    // In content scripts, execCommand is more reliable than Clipboard API
-    // Try execCommand first for better compatibility
-    var result = fallbackCopy(text);
-
-    // If fallback failed and Clipboard API is available, try it as backup
-    if (!result && navigator.clipboard && navigator.clipboard.writeText) {
-        console.log('[CopyTables] execCommand failed, trying Clipboard API...');
+    // CRITICAL: Use Clipboard API first to avoid triggering global copy event listener
+    // The global listener intercepts execCommand('copy') and copies table content instead
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        console.log('[CopyTables] Using Clipboard API (avoids global copy handler)');
         return navigator.clipboard.writeText(text).then(function() {
-            console.log('[CopyTables] ✓ Copy successful (Clipboard API)');
+            console.log('[CopyTables] ✓✓✓ Copy successful (Clipboard API) ✓✓✓');
             return true;
         }).catch(function(err) {
-            console.log('[CopyTables] ✗ Clipboard API also failed:', err);
-            return false;
+            console.log('[CopyTables] Clipboard API failed:', err);
+            console.log('[CopyTables] Falling back to execCommand...');
+            return fallbackCopy(text);
         });
     }
 
-    return result;
+    // Fallback to execCommand if Clipboard API not available
+    console.log('[CopyTables] Clipboard API not available, using execCommand');
+    return fallbackCopy(text);
 }
 
 function fallbackCopy(text) {
     // Fallback method using execCommand
     console.log('[CopyTables] Using execCommand copy method');
+
+    // CRITICAL: Add temporary copy event blocker to prevent global handler interference
+    var copyEventBlocker = function(e) {
+        console.log('[CopyTables] Copy event blocker triggered - stopping propagation');
+        e.stopImmediatePropagation();  // Prevent ALL other listeners
+    };
+
+    // Add blocker in capture phase (before global listener)
+    document.addEventListener('copy', copyEventBlocker, true);
+    console.log('[CopyTables] Copy event blocker installed');
 
     var textarea = document.createElement('textarea');
     textarea.value = text;
@@ -140,23 +150,27 @@ function fallbackCopy(text) {
     textarea.setSelectionRange(0, textarea.value.length);
     console.log('[CopyTables] Text selected, selection:', textarea.selectionStart, '-', textarea.selectionEnd);
 
+    var successful = false;
     try {
-        var successful = document.execCommand('copy');
+        successful = document.execCommand('copy');
         console.log('[CopyTables] execCommand result:', successful);
-
-        document.body.removeChild(textarea);
-        console.log('[CopyTables] Textarea removed');
-
-        if (successful) {
-            console.log('[CopyTables] ✓✓✓ Copy successful (execCommand) ✓✓✓');
-            return Promise.resolve(true);
-        } else {
-            console.log('[CopyTables] ✗✗✗ Copy failed (execCommand) ✗✗✗');
-            return Promise.resolve(false);
-        }
     } catch (err) {
         console.log('[CopyTables] ✗✗✗ Copy error (execCommand):', err);
-        document.body.removeChild(textarea);
+    }
+
+    // Clean up
+    document.body.removeChild(textarea);
+    console.log('[CopyTables] Textarea removed');
+
+    // Remove the blocker
+    document.removeEventListener('copy', copyEventBlocker, true);
+    console.log('[CopyTables] Copy event blocker removed');
+
+    if (successful) {
+        console.log('[CopyTables] ✓✓✓ Copy successful (execCommand) ✓✓✓');
+        return Promise.resolve(true);
+    } else {
+        console.log('[CopyTables] ✗✗✗ Copy failed (execCommand) ✗✗✗');
         return Promise.resolve(false);
     }
 }
