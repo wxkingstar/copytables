@@ -63,6 +63,43 @@ pugFiles.forEach(file => {
 // Step 3: Create CSS
 console.log('\n🎨 Creating CSS files...');
 
+// First, try to compile SASS files using npx sass
+const sassFiles = [
+    { input: 'options.sass', output: 'options.css' },
+    { input: 'popup.sass', output: 'popup.css' }
+];
+
+sassFiles.forEach(({ input, output }) => {
+    const srcPath = path.join(SRC, input);
+    const destPath = path.join(DEST, output);
+
+    if (fs.existsSync(srcPath)) {
+        try {
+            // Use npx sass to compile SASS files
+            execSync(`npx -y sass ${srcPath} ${destPath}`, {
+                stdio: 'pipe'
+            });
+            console.log(`  ✓ ${input} → ${output} (compiled from SASS)`);
+        } catch (err) {
+            console.log(`  ⚠ ${input} compilation failed, using minimal CSS`);
+            // Fallback to minimal CSS if compilation fails
+            if (output === 'options.css') {
+                fs.writeFileSync(destPath, 'body { font-family: Arial, sans-serif; padding: 20px; }');
+            } else if (output === 'popup.css') {
+                fs.writeFileSync(destPath, 'body { font-family: Arial, sans-serif; padding: 10px; min-width: 200px; }');
+            }
+        }
+    } else {
+        // Create minimal CSS if SASS file doesn't exist
+        if (output === 'options.css') {
+            fs.writeFileSync(destPath, 'body { font-family: Arial, sans-serif; padding: 20px; }');
+        } else if (output === 'popup.css') {
+            fs.writeFileSync(destPath, 'body { font-family: Arial, sans-serif; padding: 10px; min-width: 200px; }');
+        }
+        console.log(`  ✓ ${output} (minimal CSS)`);
+    }
+});
+
 // Create content.css with enhanced modern styles
 const contentCSS = `/* CopyTables Content Styles - Enhanced UI */
 
@@ -246,11 +283,6 @@ body[data-copytables-wait] * {
 
 fs.writeFileSync(path.join(DEST, 'content.css'), contentCSS);
 console.log('  ✓ content.css created (with click-to-copy styles)');
-
-// Create minimal popup and options CSS
-fs.writeFileSync(path.join(DEST, 'popup.css'), 'body { font-family: Arial, sans-serif; padding: 10px; min-width: 200px; }');
-fs.writeFileSync(path.join(DEST, 'options.css'), 'body { font-family: Arial, sans-serif; padding: 20px; }');
-console.log('  ✓ popup.css and options.css created');
 
 // Step 4: Bundle JavaScript with esbuild
 console.log('\n📦 Bundling JavaScript with esbuild...');
