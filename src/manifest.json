@@ -1,40 +1,15 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
+    "name": "Copytables",
+    "version": "0.5.11",
     "description": "Select table cells, rows and columns with your mouse or from a context menu. Copy as rich text, HTML, tab-delimited and CSV.",
-    "content_scripts": [
-        {
-            "js": [
-                "content.js"
-            ],
-            "css": [
-                "content.css"
-            ],
-            "matches": [
-                "*://*/*",
-                "file://*/*"
-            ],
-            "all_frames": true
-        }
-    ],
-    "background": {
-        "scripts": [
-            "background.js"
-        ],
-        "persistent": false
-    },
-    "permissions": [
-        "clipboardRead",
-        "clipboardWrite",
-        "contextMenus",
-        "webNavigation",
-        "storage"
-    ],
+    "homepage_url": "https://merribithouse.net/copytables",
     "icons": {
         "16": "ico16.png",
         "48": "ico48.png",
         "128": "ico128.png"
     },
-    "browser_action": {
+    "action": {
         "default_icon": {
             "19": "ico19.png",
             "38": "ico38.png"
@@ -42,6 +17,25 @@
         "default_title": "Copytables",
         "default_popup": "popup.html"
     },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "js": ["content.js"],
+            "css": ["content.css"],
+            "matches": ["*://*/*", "file://*/*"],
+            "all_frames": true
+        }
+    ],
+    "permissions": [
+        "contextMenus",
+        "storage"
+    ],
+    "host_permissions": [
+        "*://*/*",
+        "file://*/*"
+    ],
     "options_page": "options.html",
     "commands": {
         "find_previous": {
@@ -65,10 +59,5 @@
         "capture_table": {
             "description": "Capture tables"
         }
-
-
-    },
-    "name": "Copytables",
-    "version": "0.5.10",
-    "homepage_url": "https://merribithouse.net/copytables"
+    }
 }
