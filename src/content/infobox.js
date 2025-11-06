@@ -87,6 +87,9 @@ function html(items, sticky) {
         h += '<b></b>';
     }
 
+    // Version indicator for debugging
+    h += '<b class="version" style="font-size:9px;opacity:0.5;padding:0 8px;">v2.0</b>';
+
     return h;
 }
 
@@ -147,6 +150,8 @@ function showCopyFeedback(element) {
 }
 
 function init() {
+    console.log('[CopyTables] Initializing infobox v2.0 with click-to-copy');
+
     var box = dom.create('div', {
         id: boxId,
         'data-position': preferences.val('infobox.position') || '0'
@@ -156,8 +161,11 @@ function init() {
     box.addEventListener('click', function (e) {
         var target = e.target;
 
+        console.log('[CopyTables] Click detected on:', target.tagName, target.className);
+
         // Close button clicked
         if (dom.tag(target) === 'SPAN') {
+            console.log('[CopyTables] Close button clicked');
             hide();
             return;
         }
@@ -166,6 +174,7 @@ function init() {
         var statItem = target;
         if (dom.tag(target) === 'I') {
             statItem = target.parentElement;
+            console.log('[CopyTables] Clicked on <i>, getting parent <b>');
         }
 
         // Check if it's a stat item
@@ -189,6 +198,8 @@ function init() {
             } else {
                 console.log('[CopyTables] No value found to copy');
             }
+        } else {
+            console.log('[CopyTables] Not a stat item. Tag:', dom.tag(statItem), 'Classes:', statItem.className);
         }
     });
 
