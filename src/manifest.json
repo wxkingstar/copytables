@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "Copytables",
-    "version": "0.5.11",
-    "description": "Select table cells, rows and columns with your mouse or from a context menu. Copy as rich text, HTML, tab-delimited and CSV.",
+    "version": "0.6.0",
+    "description": "Select table cells, rows and columns with your mouse or from a context menu. Copy as rich text, HTML, tab-delimited and CSV. Click statistics to copy numbers instantly!",
     "homepage_url": "https://merribithouse.net/copytables",
     "icons": {
         "16": "ico16.png",
